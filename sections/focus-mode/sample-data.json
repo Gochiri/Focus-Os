@@ -1,0 +1,305 @@
+{
+  "_meta": {
+    "models": {
+      "focusSessions": "Sesiones de trabajo enfocado usando técnica Pomodoro. Cada sesión registra duración, pausas, estado y opcionalmente la tarea en la que se trabajó.",
+      "durationPresets": "Opciones de duración sugeridas por la IA basadas en los patrones del usuario. Incluye presets estándar y recomendaciones personalizadas.",
+      "calendarDays": "Datos agrupados por día para mostrar el historial en el calendario visual.",
+      "focusStats": "Estadísticas agregadas del usuario: tiempo de hoy, sesiones completadas, racha de días consecutivos."
+    },
+    "relationships": [
+      "Cada FocusSession puede estar vinculada a una Task específica",
+      "CalendarDays agrupa FocusSessions por fecha",
+      "FocusStats se calcula a partir de todas las FocusSessions"
+    ]
+  },
+  "activeSession": null,
+  "focusStats": {
+    "todayMinutes": 145,
+    "todaySessions": 5,
+    "currentStreak": 12,
+    "bestStreak": 21,
+    "weeklyMinutes": 840,
+    "weeklyGoal": 1200,
+    "averageSessionLength": 28
+  },
+  "durationPresets": [
+    {
+      "id": "preset-1",
+      "minutes": 25,
+      "breakMinutes": 5,
+      "label": "Pomodoro clásico",
+      "isRecommended": false,
+      "aiReason": null
+    },
+    {
+      "id": "preset-2",
+      "minutes": 50,
+      "breakMinutes": 10,
+      "label": "Sesión larga",
+      "isRecommended": true,
+      "aiReason": "Basado en tu historial, rindes mejor en sesiones de 50 minutos por las mañanas"
+    },
+    {
+      "id": "preset-3",
+      "minutes": 15,
+      "breakMinutes": 3,
+      "label": "Sprint rápido",
+      "isRecommended": false,
+      "aiReason": null
+    },
+    {
+      "id": "preset-4",
+      "minutes": 90,
+      "breakMinutes": 15,
+      "label": "Deep work",
+      "isRecommended": false,
+      "aiReason": null
+    }
+  ],
+  "focusSessions": [
+    {
+      "id": "fs-001",
+      "date": "2024-01-15",
+      "startTime": "08:30",
+      "endTime": "08:55",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": {
+        "id": "task-001",
+        "title": "Finalizar diseño de onboarding"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-002",
+      "date": "2024-01-15",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "durationMinutes": 50,
+      "breakMinutes": 10,
+      "status": "completed",
+      "task": {
+        "id": "task-001",
+        "title": "Finalizar diseño de onboarding"
+      },
+      "pauseCount": 1,
+      "notes": "Terminé el flujo principal"
+    },
+    {
+      "id": "fs-003",
+      "date": "2024-01-15",
+      "startTime": "10:15",
+      "endTime": "10:40",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": {
+        "id": "task-002",
+        "title": "Preparar presentación para inversores"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-004",
+      "date": "2024-01-15",
+      "startTime": "14:00",
+      "endTime": "14:20",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "interrupted",
+      "task": {
+        "id": "task-002",
+        "title": "Preparar presentación para inversores"
+      },
+      "pauseCount": 2,
+      "notes": "Interrumpido por llamada urgente"
+    },
+    {
+      "id": "fs-005",
+      "date": "2024-01-15",
+      "startTime": "15:30",
+      "endTime": "15:55",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": null,
+      "pauseCount": 0,
+      "notes": "Revisión de emails"
+    },
+    {
+      "id": "fs-006",
+      "date": "2024-01-14",
+      "startTime": "09:00",
+      "endTime": "09:50",
+      "durationMinutes": 50,
+      "breakMinutes": 10,
+      "status": "completed",
+      "task": {
+        "id": "task-001",
+        "title": "Finalizar diseño de onboarding"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-007",
+      "date": "2024-01-14",
+      "startTime": "10:30",
+      "endTime": "10:55",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": {
+        "id": "task-003",
+        "title": "Implementar autenticación OAuth"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-008",
+      "date": "2024-01-14",
+      "startTime": "14:00",
+      "endTime": "15:30",
+      "durationMinutes": 90,
+      "breakMinutes": 15,
+      "status": "completed",
+      "task": {
+        "id": "task-003",
+        "title": "Implementar autenticación OAuth"
+      },
+      "pauseCount": 1,
+      "notes": "Sesión de deep work muy productiva"
+    },
+    {
+      "id": "fs-009",
+      "date": "2024-01-13",
+      "startTime": "08:00",
+      "endTime": "08:25",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": null,
+      "pauseCount": 0,
+      "notes": "Planificación del día"
+    },
+    {
+      "id": "fs-010",
+      "date": "2024-01-13",
+      "startTime": "09:00",
+      "endTime": "09:50",
+      "durationMinutes": 50,
+      "breakMinutes": 10,
+      "status": "completed",
+      "task": {
+        "id": "task-004",
+        "title": "Definir estrategia de pricing"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-011",
+      "date": "2024-01-12",
+      "startTime": "10:00",
+      "endTime": "10:25",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": {
+        "id": "task-005",
+        "title": "Revisar contrato con proveedor"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-012",
+      "date": "2024-01-12",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "durationMinutes": 50,
+      "breakMinutes": 10,
+      "status": "completed",
+      "task": {
+        "id": "task-001",
+        "title": "Finalizar diseño de onboarding"
+      },
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-013",
+      "date": "2024-01-11",
+      "startTime": "09:00",
+      "endTime": "09:25",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "completed",
+      "task": null,
+      "pauseCount": 0,
+      "notes": null
+    },
+    {
+      "id": "fs-014",
+      "date": "2024-01-10",
+      "startTime": "14:00",
+      "endTime": "14:50",
+      "durationMinutes": 50,
+      "breakMinutes": 10,
+      "status": "completed",
+      "task": {
+        "id": "task-006",
+        "title": "Crear contenido para redes sociales"
+      },
+      "pauseCount": 1,
+      "notes": null
+    },
+    {
+      "id": "fs-015",
+      "date": "2024-01-09",
+      "startTime": "10:00",
+      "endTime": "10:15",
+      "durationMinutes": 25,
+      "breakMinutes": 5,
+      "status": "interrupted",
+      "task": {
+        "id": "task-002",
+        "title": "Preparar presentación para inversores"
+      },
+      "pauseCount": 3,
+      "notes": "Muchas interrupciones, mejor intentar mañana"
+    }
+  ],
+  "calendarDays": [
+    { "date": "2024-01-15", "totalMinutes": 145, "sessionsCount": 5, "completedCount": 4 },
+    { "date": "2024-01-14", "totalMinutes": 165, "sessionsCount": 3, "completedCount": 3 },
+    { "date": "2024-01-13", "totalMinutes": 75, "sessionsCount": 2, "completedCount": 2 },
+    { "date": "2024-01-12", "totalMinutes": 75, "sessionsCount": 2, "completedCount": 2 },
+    { "date": "2024-01-11", "totalMinutes": 25, "sessionsCount": 1, "completedCount": 1 },
+    { "date": "2024-01-10", "totalMinutes": 50, "sessionsCount": 1, "completedCount": 1 },
+    { "date": "2024-01-09", "totalMinutes": 15, "sessionsCount": 1, "completedCount": 0 },
+    { "date": "2024-01-08", "totalMinutes": 100, "sessionsCount": 3, "completedCount": 3 },
+    { "date": "2024-01-07", "totalMinutes": 0, "sessionsCount": 0, "completedCount": 0 },
+    { "date": "2024-01-06", "totalMinutes": 75, "sessionsCount": 2, "completedCount": 2 },
+    { "date": "2024-01-05", "totalMinutes": 125, "sessionsCount": 4, "completedCount": 4 },
+    { "date": "2024-01-04", "totalMinutes": 50, "sessionsCount": 2, "completedCount": 1 }
+  ],
+  "sampleActiveSession": {
+    "id": "fs-active",
+    "startedAt": "2024-01-15T16:00:00Z",
+    "durationMinutes": 50,
+    "breakMinutes": 10,
+    "elapsedSeconds": 1847,
+    "status": "in_progress",
+    "isPaused": false,
+    "pauseCount": 0,
+    "task": {
+      "id": "task-002",
+      "title": "Preparar presentación para inversores"
+    }
+  }
+}

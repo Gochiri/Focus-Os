@@ -1,0 +1,214 @@
+{
+  "_meta": {
+    "models": {
+      "tasks": "Cada tarea representa una unidad de trabajo con prioridad Pareto calculada por IA. Puede tener dependencias que bloquean su inicio hasta completar prerequisitos.",
+      "projects": "Proyectos agrupan tareas relacionadas para mejor organización. Una tarea puede pertenecer a un proyecto o ser independiente.",
+      "tags": "Etiquetas flexibles para categorizar y filtrar tareas. Una tarea puede tener múltiples etiquetas.",
+      "workBlocks": "Bloques de tiempo programados en el calendario para trabajar en una tarea específica."
+    },
+    "relationships": [
+      "Cada Task puede pertenecer a un Project (opcional)",
+      "Cada Task puede tener múltiples Tags",
+      "Cada Task puede estar vinculada a un Goal (referencia por goalId)",
+      "Cada Task puede depender de otras Tasks (blockedBy contiene IDs)",
+      "Cada WorkBlock está vinculado a una Task específica"
+    ]
+  },
+  "projects": [
+    {
+      "id": "proj-001",
+      "name": "Lanzamiento App Móvil",
+      "color": "violet"
+    },
+    {
+      "id": "proj-002",
+      "name": "Marketing Q1",
+      "color": "amber"
+    },
+    {
+      "id": "proj-003",
+      "name": "Operaciones",
+      "color": "emerald"
+    }
+  ],
+  "tags": [
+    { "id": "tag-001", "name": "Urgente", "color": "red" },
+    { "id": "tag-002", "name": "Cliente", "color": "blue" },
+    { "id": "tag-003", "name": "Reunión", "color": "purple" },
+    { "id": "tag-004", "name": "Documentación", "color": "slate" },
+    { "id": "tag-005", "name": "Desarrollo", "color": "green" },
+    { "id": "tag-006", "name": "Revisión", "color": "orange" }
+  ],
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "Finalizar diseño de onboarding",
+      "notes": "Incluir los 3 pasos principales: bienvenida, configuración de metas, y primera tarea. Revisar con el equipo de UX antes de implementar.",
+      "priority": "high",
+      "status": "in_progress",
+      "deadline": "2024-01-18",
+      "estimatedMinutes": 180,
+      "progress": 65,
+      "projectId": "proj-001",
+      "goalId": "goal-001",
+      "tagIds": ["tag-005", "tag-002"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-002",
+      "title": "Preparar presentación para inversores",
+      "notes": "Deck de 12 slides máximo. Incluir métricas de tracción, roadmap y uso de fondos. Practicar pitch de 10 minutos.",
+      "priority": "high",
+      "status": "pending",
+      "deadline": "2024-01-20",
+      "estimatedMinutes": 240,
+      "progress": 0,
+      "projectId": null,
+      "goalId": "goal-002",
+      "tagIds": ["tag-001", "tag-003"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-003",
+      "title": "Implementar autenticación OAuth",
+      "notes": "Soporte para Google y Apple sign-in. Usar la librería Auth.js. No olvidar refresh tokens.",
+      "priority": "high",
+      "status": "blocked",
+      "deadline": "2024-01-22",
+      "estimatedMinutes": 300,
+      "progress": 0,
+      "projectId": "proj-001",
+      "goalId": "goal-001",
+      "tagIds": ["tag-005"],
+      "blockedBy": ["task-001"]
+    },
+    {
+      "id": "task-004",
+      "title": "Revisar contrato con proveedor",
+      "notes": "Verificar cláusulas de SLA y penalizaciones. Consultar con legal si hay dudas.",
+      "priority": "medium",
+      "status": "pending",
+      "deadline": "2024-01-19",
+      "estimatedMinutes": 60,
+      "progress": 0,
+      "projectId": "proj-003",
+      "goalId": null,
+      "tagIds": ["tag-004", "tag-006"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-005",
+      "title": "Crear contenido para redes sociales",
+      "notes": "10 posts para Instagram, 5 para LinkedIn. Usar el nuevo brand guide. Incluir CTAs hacia la landing.",
+      "priority": "medium",
+      "status": "pending",
+      "deadline": "2024-01-25",
+      "estimatedMinutes": 120,
+      "progress": 0,
+      "projectId": "proj-002",
+      "goalId": "goal-003",
+      "tagIds": ["tag-002"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-006",
+      "title": "Configurar analytics y eventos",
+      "notes": "Implementar tracking de: signup, onboarding completado, primera tarea creada, primera sesión de foco.",
+      "priority": "medium",
+      "status": "blocked",
+      "deadline": "2024-01-24",
+      "estimatedMinutes": 90,
+      "progress": 0,
+      "projectId": "proj-001",
+      "goalId": "goal-001",
+      "tagIds": ["tag-005"],
+      "blockedBy": ["task-003"]
+    },
+    {
+      "id": "task-007",
+      "title": "Actualizar documentación API",
+      "notes": "",
+      "priority": "low",
+      "status": "pending",
+      "deadline": "2024-01-30",
+      "estimatedMinutes": 90,
+      "progress": 0,
+      "projectId": "proj-001",
+      "goalId": null,
+      "tagIds": ["tag-004"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-008",
+      "title": "Responder emails de soporte pendientes",
+      "notes": "Hay 12 tickets sin responder desde la semana pasada.",
+      "priority": "low",
+      "status": "pending",
+      "deadline": "2024-01-17",
+      "estimatedMinutes": 45,
+      "progress": 0,
+      "projectId": "proj-003",
+      "goalId": null,
+      "tagIds": ["tag-002"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-009",
+      "title": "Reunión semanal con equipo",
+      "notes": "Agenda: revisión de OKRs, blockers actuales, prioridades de la semana.",
+      "priority": "medium",
+      "status": "completed",
+      "deadline": "2024-01-15",
+      "estimatedMinutes": 60,
+      "progress": 100,
+      "projectId": null,
+      "goalId": null,
+      "tagIds": ["tag-003"],
+      "blockedBy": []
+    },
+    {
+      "id": "task-010",
+      "title": "Definir estrategia de pricing",
+      "notes": "Comparar con competencia. Considerar modelo freemium vs trial. Preparar 3 opciones para discutir.",
+      "priority": "high",
+      "status": "pending",
+      "deadline": "2024-01-21",
+      "estimatedMinutes": 150,
+      "progress": 0,
+      "projectId": "proj-002",
+      "goalId": "goal-002",
+      "tagIds": ["tag-001"],
+      "blockedBy": []
+    }
+  ],
+  "workBlocks": [
+    {
+      "id": "wb-001",
+      "taskId": "task-001",
+      "date": "2024-01-16",
+      "startTime": "09:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": "wb-002",
+      "taskId": "task-002",
+      "date": "2024-01-17",
+      "startTime": "14:00",
+      "endTime": "16:00"
+    },
+    {
+      "id": "wb-003",
+      "taskId": "task-001",
+      "date": "2024-01-17",
+      "startTime": "09:00",
+      "endTime": "10:30"
+    },
+    {
+      "id": "wb-004",
+      "taskId": "task-010",
+      "date": "2024-01-18",
+      "startTime": "10:00",
+      "endTime": "12:00"
+    }
+  ]
+}

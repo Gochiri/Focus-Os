@@ -1,0 +1,189 @@
+{
+  "_meta": {
+    "models": {
+      "goals": "Cada meta representa un objetivo estructurado con metodología SMART y framework RPM. Contiene el resultado deseado, la motivación detrás del objetivo, y el plan de acción.",
+      "milestones": "Hitos importantes dentro de una meta que marcan progreso significativo hacia el objetivo final.",
+      "tasks": "Tareas específicas vinculadas a una meta como parte del plan de acción masiva (RPM)."
+    },
+    "relationships": [
+      "Cada Goal contiene varios Milestones (puntos de control del progreso)",
+      "Cada Goal puede tener Tasks vinculadas (acciones específicas del plan RPM)",
+      "Las Tasks se sincronizan con la sección Tasks & Priorities"
+    ]
+  },
+  "goals": [
+    {
+      "id": "goal-001",
+      "title": "Lanzar la app móvil en App Store y Play Store",
+      "description": "Publicar la primera versión de FocusAI en ambas tiendas de aplicaciones con las funcionalidades core completas.",
+      "status": "en_progreso",
+      "progress": 65,
+      "dueDate": "2024-03-15",
+      "tags": ["Producto", "Q1"],
+      "smart": {
+        "specific": "Publicar FocusAI v1.0 con gestión de tareas, metas y focus mode en iOS y Android",
+        "measurable": "App aprobada en ambas tiendas con rating inicial de 4+ estrellas",
+        "achievable": "Equipo de 3 desarrolladores, diseño completado, backend listo",
+        "relevant": "Es el canal principal para llegar a usuarios móviles y validar el producto",
+        "timeBound": "15 de marzo 2024"
+      },
+      "rpm": {
+        "result": "App publicada y funcionando en producción con primeros 100 usuarios activos",
+        "purpose": "Demostrar que podemos ejecutar y entregar valor real a usuarios. Validar la hipótesis de que la gente necesita un coach de productividad con IA.",
+        "massiveActionPlan": "1) Completar testing de integración, 2) Preparar assets para tiendas, 3) Configurar analytics, 4) Submit a review, 5) Plan de soft launch"
+      },
+      "milestones": [
+        { "id": "ms-001", "title": "Diseño UI/UX completo", "completed": true },
+        { "id": "ms-002", "title": "Backend y API listos", "completed": true },
+        { "id": "ms-003", "title": "Testing de integración", "completed": false },
+        { "id": "ms-004", "title": "Submit a App Store", "completed": false },
+        { "id": "ms-005", "title": "Submit a Play Store", "completed": false }
+      ],
+      "linkedTasks": [
+        { "id": "task-001", "title": "Finalizar diseño de onboarding", "completed": false },
+        { "id": "task-003", "title": "Implementar autenticación OAuth", "completed": false },
+        { "id": "task-009", "title": "Configurar analytics y eventos", "completed": false }
+      ]
+    },
+    {
+      "id": "goal-002",
+      "title": "Cerrar ronda seed de $500K",
+      "description": "Conseguir financiamiento inicial para escalar el equipo y acelerar desarrollo.",
+      "status": "en_progreso",
+      "progress": 40,
+      "dueDate": "2024-04-30",
+      "tags": ["Fundraising", "Q1"],
+      "smart": {
+        "specific": "Cerrar ronda seed de $500K con 2-3 inversionistas ángeles o fondo pre-seed",
+        "measurable": "$500K comprometidos con term sheet firmado",
+        "achievable": "Tenemos tracción inicial, equipo sólido y mercado grande",
+        "relevant": "Capital necesario para contratar 2 devs más y marketing inicial",
+        "timeBound": "30 de abril 2024"
+      },
+      "rpm": {
+        "result": "Ronda cerrada, dinero en el banco, y runway de 18 meses asegurado",
+        "purpose": "Tener la libertad financiera para enfocarnos 100% en construir el mejor producto sin preocupaciones de corto plazo. Validar que otros creen en nuestra visión.",
+        "massiveActionPlan": "1) Preparar deck actualizado, 2) Lista de 50 inversionistas target, 3) Warm intros, 4) 20 reuniones, 5) Negociar términos"
+      },
+      "milestones": [
+        { "id": "ms-006", "title": "Deck de inversión listo", "completed": true },
+        { "id": "ms-007", "title": "20 reuniones con inversionistas", "completed": false },
+        { "id": "ms-008", "title": "Term sheet recibido", "completed": false },
+        { "id": "ms-009", "title": "Due diligence completado", "completed": false }
+      ],
+      "linkedTasks": [
+        { "id": "task-002", "title": "Preparar presentación para inversores", "completed": false }
+      ]
+    },
+    {
+      "id": "goal-003",
+      "title": "Establecer rutina de ejercicio 4x por semana",
+      "description": "Mejorar salud física y energía mediante ejercicio constante.",
+      "status": "en_progreso",
+      "progress": 75,
+      "dueDate": "2024-06-30",
+      "tags": ["Salud", "Personal"],
+      "smart": {
+        "specific": "Hacer ejercicio 4 veces por semana: 2 días gym, 1 día cardio, 1 día yoga",
+        "measurable": "16 sesiones de ejercicio por mes registradas",
+        "achievable": "Gym a 10 min de casa, horario flexible por las mañanas",
+        "relevant": "Más energía = mejor rendimiento en trabajo y vida personal",
+        "timeBound": "Hábito establecido para fin de Q2 2024"
+      },
+      "rpm": {
+        "result": "Ejercicio como parte natural de mi rutina, sin tener que pensarlo",
+        "purpose": "Sentirme fuerte, con energía y mentalmente claro. Dar el ejemplo a mi familia sobre hábitos saludables.",
+        "massiveActionPlan": "1) Preparar ropa la noche anterior, 2) Alarma a las 6am, 3) No negociar conmigo mismo, 4) Tracking en app"
+      },
+      "milestones": [
+        { "id": "ms-010", "title": "Primera semana completa", "completed": true },
+        { "id": "ms-011", "title": "Primer mes consistente", "completed": true },
+        { "id": "ms-012", "title": "3 meses sin fallar más de 2 días", "completed": false }
+      ],
+      "linkedTasks": []
+    },
+    {
+      "id": "goal-004",
+      "title": "Leer 24 libros este año",
+      "description": "Expandir conocimientos leyendo 2 libros por mes en temas de negocio, psicología y ficción.",
+      "status": "por_iniciar",
+      "progress": 0,
+      "dueDate": "2024-12-31",
+      "tags": ["Personal", "Aprendizaje"],
+      "smart": {
+        "specific": "Leer 24 libros: 12 de negocios/productividad, 6 de psicología, 6 de ficción",
+        "measurable": "2 libros completados por mes, notas en Notion",
+        "achievable": "30 min de lectura diaria = 1 libro cada 2 semanas",
+        "relevant": "Aprendizaje continuo es clave para tomar mejores decisiones",
+        "timeBound": "31 de diciembre 2024"
+      },
+      "rpm": {
+        "result": "24 libros leídos con notas y aprendizajes aplicados",
+        "purpose": "Ser una persona más informada, creativa y con mejores frameworks mentales. Disfrutar del placer de leer.",
+        "massiveActionPlan": "1) Lista de libros por categoría, 2) Bloquear 30 min diarios, 3) Kindle siempre cargado, 4) Book club mensual"
+      },
+      "milestones": [
+        { "id": "ms-013", "title": "Lista de 24 libros definida", "completed": false },
+        { "id": "ms-014", "title": "Primeros 6 libros (Q1)", "completed": false },
+        { "id": "ms-015", "title": "12 libros (mitad de año)", "completed": false },
+        { "id": "ms-016", "title": "24 libros completados", "completed": false }
+      ],
+      "linkedTasks": []
+    },
+    {
+      "id": "goal-005",
+      "title": "Dominar TypeScript y React avanzado",
+      "description": "Profundizar conocimientos técnicos para liderar mejor las decisiones de arquitectura.",
+      "status": "pausada",
+      "progress": 30,
+      "dueDate": "2024-08-31",
+      "tags": ["Aprendizaje", "Tech"],
+      "smart": {
+        "specific": "Completar 2 cursos avanzados y contribuir a 3 proyectos open source",
+        "measurable": "Certificaciones obtenidas + PRs mergeados",
+        "achievable": "2 horas de estudio los fines de semana",
+        "relevant": "Como founder técnico, necesito mantenerme actualizado",
+        "timeBound": "Agosto 2024"
+      },
+      "rpm": {
+        "result": "Confianza para tomar decisiones técnicas y hacer code reviews efectivos",
+        "purpose": "Ganar respeto del equipo técnico y poder contribuir código cuando sea necesario. No depender 100% de otros para entender la arquitectura.",
+        "massiveActionPlan": "1) Inscribirme en curso de Josh Comeau, 2) Identificar repos para contribuir, 3) Pair programming con el lead dev"
+      },
+      "milestones": [
+        { "id": "ms-017", "title": "Curso de TypeScript completado", "completed": true },
+        { "id": "ms-018", "title": "Primer PR en proyecto open source", "completed": false },
+        { "id": "ms-019", "title": "Curso de React avanzado", "completed": false }
+      ],
+      "linkedTasks": []
+    },
+    {
+      "id": "goal-006",
+      "title": "Conseguir primeros 1,000 usuarios activos",
+      "description": "Validar product-market fit con usuarios reales usando la app semanalmente.",
+      "status": "por_iniciar",
+      "progress": 0,
+      "dueDate": "2024-05-31",
+      "tags": ["Producto", "Growth"],
+      "smart": {
+        "specific": "1,000 usuarios que usen FocusAI al menos 3 veces por semana",
+        "measurable": "DAU/WAU ratio de 40%+, 1,000 WAU",
+        "achievable": "Con app lanzada y estrategia de contenido orgánico",
+        "relevant": "Métrica clave para demostrar tracción a inversionistas",
+        "timeBound": "31 de mayo 2024"
+      },
+      "rpm": {
+        "result": "Base de usuarios engaged que aman el producto y lo recomiendan",
+        "purpose": "Probar que estamos resolviendo un problema real. Tener feedback constante para mejorar. Sentar las bases para crecimiento exponencial.",
+        "massiveActionPlan": "1) Estrategia de contenido en Twitter/LinkedIn, 2) ProductHunt launch, 3) Programa de referidos, 4) Partnerships con influencers de productividad"
+      },
+      "milestones": [
+        { "id": "ms-020", "title": "App lanzada públicamente", "completed": false },
+        { "id": "ms-021", "title": "Primeros 100 usuarios", "completed": false },
+        { "id": "ms-022", "title": "500 usuarios activos", "completed": false },
+        { "id": "ms-023", "title": "1,000 usuarios activos", "completed": false }
+      ],
+      "linkedTasks": []
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "_meta": {
+    "models": {
+      "messages": "Mensajes del chat entre el usuario y el coach de IA. Incluye mensajes del usuario, respuestas de la IA, sugerencias proactivas y preguntas de reflexión.",
+      "proactiveSuggestions": "Cards destacadas que aparecen arriba del chat para llamar la atención del usuario sobre check-ins, alertas de procrastinación o sugerencias contextuales.",
+      "quickActions": "Acciones rápidas sugeridas por la IA que aparecen como chips/botones debajo de ciertos mensajes."
+    },
+    "relationships": [
+      "Cada Message puede tener QuickActions asociadas (sugerencias de acción)",
+      "Los Messages pueden referenciar una Task o Goal específica",
+      "Las ProactiveSuggestions se convierten en Messages cuando el usuario interactúa con ellas"
+    ]
+  },
+  "messages": [
+    {
+      "id": "msg-001",
+      "type": "ai",
+      "content": "Buenos días. He notado que tienes 4 tareas de alto impacto pendientes. ¿Te gustaría que te ayude a priorizarlas para hoy?",
+      "timestamp": "2024-01-15T08:30:00Z",
+      "quickActions": [
+        { "id": "qa-001", "label": "Sí, prioricemos", "action": "prioritize_tasks" },
+        { "id": "qa-002", "label": "Mostrar tareas", "action": "show_high_impact" }
+      ]
+    },
+    {
+      "id": "msg-002",
+      "type": "user",
+      "content": "Sí, ayúdame a ver qué debería hacer primero",
+      "timestamp": "2024-01-15T08:31:00Z"
+    },
+    {
+      "id": "msg-003",
+      "type": "ai",
+      "content": "Perfecto. Analizando tus tareas de alto impacto:\n\n1. **Finalizar diseño de onboarding** - 65% completado, vence en 2 días. Tiene 3 tareas dependientes.\n\n2. **Preparar presentación para inversores** - Sin progreso, vence en 4 días. Marcada como urgente.\n\n3. **Definir estrategia de pricing** - Sin progreso, vence en 5 días.\n\nTe recomiendo empezar con el diseño de onboarding porque está bloqueando otras tareas. ¿Inicio una sesión de foco de 25 minutos para esto?",
+      "timestamp": "2024-01-15T08:31:30Z",
+      "referencedTask": {
+        "id": "task-001",
+        "title": "Finalizar diseño de onboarding"
+      },
+      "quickActions": [
+        { "id": "qa-003", "label": "Iniciar Focus Mode", "action": "start_focus", "taskId": "task-001" },
+        { "id": "qa-004", "label": "Ver detalles", "action": "view_task", "taskId": "task-001" },
+        { "id": "qa-005", "label": "Elegir otra tarea", "action": "show_alternatives" }
+      ]
+    },
+    {
+      "id": "msg-004",
+      "type": "user",
+      "content": "Inicia el focus mode para el onboarding",
+      "timestamp": "2024-01-15T08:32:00Z"
+    },
+    {
+      "id": "msg-005",
+      "type": "ai",
+      "content": "Iniciando sesión de foco de 25 minutos para \"Finalizar diseño de onboarding\". Te avisaré cuando sea momento de tomar un descanso. ¡Éxito!",
+      "timestamp": "2024-01-15T08:32:15Z",
+      "actionExecuted": {
+        "type": "focus_started",
+        "taskId": "task-001",
+        "duration": 25
+      }
+    },
+    {
+      "id": "msg-006",
+      "type": "ai",
+      "content": "¡Excelente sesión! Completaste 25 minutos de trabajo enfocado. Has acumulado 2 horas de foco hoy. ¿Quieres tomar un descanso de 5 minutos o continuar con otra sesión?",
+      "timestamp": "2024-01-15T08:57:00Z",
+      "quickActions": [
+        { "id": "qa-006", "label": "Descanso 5 min", "action": "start_break" },
+        { "id": "qa-007", "label": "Otra sesión", "action": "start_focus" },
+        { "id": "qa-008", "label": "Marcar completada", "action": "complete_task", "taskId": "task-001" }
+      ]
+    },
+    {
+      "id": "msg-007",
+      "type": "user",
+      "content": "Ya terminé el diseño, márcala como completada",
+      "timestamp": "2024-01-15T08:58:00Z"
+    },
+    {
+      "id": "msg-008",
+      "type": "ai",
+      "content": "¡Felicidades! He marcado \"Finalizar diseño de onboarding\" como completada. Esto desbloquea \"Implementar autenticación OAuth\" que ahora puede comenzar. Tu progreso hacia la meta \"Lanzar la app móvil\" subió a 70%.",
+      "timestamp": "2024-01-15T08:58:10Z",
+      "actionExecuted": {
+        "type": "task_completed",
+        "taskId": "task-001"
+      },
+      "referencedGoal": {
+        "id": "goal-001",
+        "title": "Lanzar la app móvil en App Store y Play Store"
+      }
+    },
+    {
+      "id": "msg-009",
+      "type": "reflection",
+      "content": "Son las 6pm. Antes de terminar el día, ¿qué fue lo más importante que lograste hoy? ¿Hay algo que quieras hacer diferente mañana?",
+      "timestamp": "2024-01-15T18:00:00Z",
+      "reflectionType": "evening"
+    },
+    {
+      "id": "msg-010",
+      "type": "user",
+      "content": "Logré terminar el diseño de onboarding que venía posponiendo. Mañana quiero empezar más temprano con las tareas difíciles.",
+      "timestamp": "2024-01-15T18:05:00Z"
+    },
+    {
+      "id": "msg-011",
+      "type": "ai",
+      "content": "Excelente reflexión. Completar esa tarea que venías posponiendo es un gran logro. He guardado tu intención de empezar temprano con tareas difíciles. Mañana te recordaré esto en tu check-in matutino. ¡Descansa bien!",
+      "timestamp": "2024-01-15T18:05:30Z"
+    }
+  ],
+  "proactiveSuggestions": [
+    {
+      "id": "ps-001",
+      "type": "procrastination_alert",
+      "title": "¿Necesitas ayuda con esta tarea?",
+      "message": "He notado que \"Preparar presentación para inversores\" lleva 3 días sin avance y vence pronto. A veces dividir una tarea grande en pasos pequeños ayuda a empezar.",
+      "referencedTask": {
+        "id": "task-002",
+        "title": "Preparar presentación para inversores"
+      },
+      "priority": "high",
+      "actions": [
+        { "id": "psa-001", "label": "Dividir en pasos", "action": "break_down_task" },
+        { "id": "psa-002", "label": "Empezar ahora", "action": "start_focus", "taskId": "task-002" },
+        { "id": "psa-003", "label": "Recordar mañana", "action": "snooze" }
+      ],
+      "createdAt": "2024-01-15T10:00:00Z"
+    },
+    {
+      "id": "ps-002",
+      "type": "check_in",
+      "title": "Check-in matutino",
+      "message": "¿Cuál es la única tarea que, si la completas hoy, hará que el día haya valido la pena?",
+      "priority": "medium",
+      "actions": [
+        { "id": "psa-004", "label": "Responder", "action": "respond_check_in" },
+        { "id": "psa-005", "label": "Ver mis tareas", "action": "show_tasks" }
+      ],
+      "createdAt": "2024-01-16T08:00:00Z"
+    },
+    {
+      "id": "ps-003",
+      "type": "suggestion",
+      "title": "Momento ideal para tareas creativas",
+      "message": "Basado en tu historial, rindes mejor en tareas creativas por la mañana. \"Definir estrategia de pricing\" podría ser perfecta para ahora.",
+      "referencedTask": {
+        "id": "task-004",
+        "title": "Definir estrategia de pricing"
+      },
+      "priority": "low",
+      "actions": [
+        { "id": "psa-006", "label": "Empezar ahora", "action": "start_focus", "taskId": "task-004" },
+        { "id": "psa-007", "label": "Más tarde", "action": "dismiss" }
+      ],
+      "createdAt": "2024-01-16T09:30:00Z"
+    }
+  ],
+  "coachState": {
+    "isTyping": false,
+    "unreadSuggestions": 2,
+    "todayFocusMinutes": 145,
+    "currentStreak": 5,
+    "lastCheckIn": "2024-01-15T08:30:00Z"
+  }
+}
