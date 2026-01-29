@@ -1,0 +1,12 @@
+.agent/
+.agents/
+.claude/
+.cline/
+.cursor/
+.continue/
+.roo/
+.windsurf/
+node_modules/
+dist/
+*.local
+.DS_Store

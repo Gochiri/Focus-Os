@@ -1,11 +1,10 @@
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { AppShell } from './components/AppShell'
+import { AppShell, type NavigationItem } from './components'
 import { TasksPage } from './pages/TasksPage'
 import { GoalsPage } from './pages/GoalsPage'
 import { CoachPage } from './pages/CoachPage'
 import { FocusPage } from './pages/FocusPage'
 import { DashboardPage } from './pages/DashboardPage'
-import type { NavigationItem } from './components/MainNav'
 
 const navigationItems: NavigationItem[] = [
   { label: 'Tareas', href: '/tasks', icon: 'CheckSquare' },

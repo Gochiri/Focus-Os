@@ -1,247 +1,179 @@
-import { TrendingUp, TrendingDown, Clock, CheckCircle2, Target, Flame, Award, Zap, Calendar, Sunrise } from 'lucide-react'
+import { useState } from 'react'
+import { Dashboard } from '../components/dashboard/Dashboard'
+import type { Period, PeriodMetrics, TrendDataPoint, GoalProgress, MotivationalCard, Achievement, AIInsight } from '../types'
 
-const metrics = {
-  productivityScore: 78,
-  previousScore: 65,
-  focusMinutes: 145,
-  previousFocusMinutes: 120,
-  tasksCompleted: 7,
-  previousTasksCompleted: 5,
-  streakDays: 12
+const mockMetrics: Record<Period, PeriodMetrics> = {
+  today: {
+    productivityScore: 85,
+    previousScore: 78,
+    focusMinutes: 240,
+    previousFocusMinutes: 180,
+    sessionsCompleted: 8,
+    previousSessions: 6,
+    tasksCompleted: 12,
+    previousTasksCompleted: 10,
+    highImpactCompleted: 3,
+    highImpactTotal: 4,
+    streakDays: 15
+  },
+  week: {
+    productivityScore: 82,
+    previousScore: 75,
+    focusMinutes: 1450,
+    previousFocusMinutes: 1200,
+    sessionsCompleted: 42,
+    previousSessions: 38,
+    tasksCompleted: 68,
+    previousTasksCompleted: 60,
+    highImpactCompleted: 18,
+    highImpactTotal: 22,
+    streakDays: 15
+  },
+  month: {
+    productivityScore: 79,
+    previousScore: 72,
+    focusMinutes: 5800,
+    previousFocusMinutes: 5200,
+    sessionsCompleted: 165,
+    previousSessions: 150,
+    tasksCompleted: 245,
+    previousTasksCompleted: 220,
+    highImpactCompleted: 65,
+    highImpactTotal: 75,
+    streakDays: 15
+  }
 }
 
-const goalProgress = [
-  { id: '1', title: 'Lanzar la app móvil', progress: 70, dueDate: '2024-03-15' },
-  { id: '2', title: 'Cerrar ronda seed', progress: 40, dueDate: '2024-04-30' },
-  { id: '3', title: 'Rutina de ejercicio', progress: 75, dueDate: '2024-06-30' }
+const mockTrendData: TrendDataPoint[] = [
+  { date: '2024-01-22', score: 72, focusMinutes: 180 },
+  { date: '2024-01-23', score: 78, focusMinutes: 210 },
+  { date: '2024-01-24', score: 65, focusMinutes: 150 },
+  { date: '2024-01-25', score: 85, focusMinutes: 240 },
+  { date: '2024-01-26', score: 82, focusMinutes: 230 },
+  { date: '2024-01-27', score: 90, focusMinutes: 280 },
+  { date: '2024-01-28', score: 88, focusMinutes: 260 },
 ]
 
-const achievements = [
-  { id: '1', title: 'Primera semana', icon: Calendar, unlocked: true },
-  { id: '2', title: 'Madrugador', icon: Sunrise, unlocked: true },
-  { id: '3', title: 'Pareto Master', icon: Zap, unlocked: true },
-  { id: '4', title: 'Meta Crusher', icon: Target, unlocked: false }
-]
-
-const aiInsights = [
+const mockGoals: GoalProgress[] = [
   {
-    type: 'positive',
-    title: 'Tu mejor momento es la mañana',
-    message: 'El 70% de tus tareas de alto impacto las completas antes de las 12pm.'
+    id: 'goal-001',
+    title: 'Lanzar App FocusAI v1.0',
+    progress: 75,
+    dueDate: '2024-02-15',
+    status: 'en_progreso',
+    tasksCompleted: 15,
+    tasksTotal: 20
   },
   {
-    type: 'suggestion',
-    title: 'Oportunidad de mejora',
-    message: 'Los miércoles tienes 40% menos productividad. ¿Hay distracciones ese día?'
+    id: 'goal-002',
+    title: 'Cerrar 3 clientes Beta',
+    progress: 33,
+    dueDate: '2024-01-31',
+    status: 'en_progreso',
+    tasksCompleted: 1,
+    tasksTotal: 3
+  },
+  {
+    id: 'goal-003',
+    title: 'Establecer rutina de mañana',
+    progress: 90,
+    dueDate: '2024-02-01',
+    status: 'en_progreso',
+    tasksCompleted: 18,
+    tasksTotal: 20
   }
 ]
 
-function getChangeIndicator(current: number, previous: number) {
-  const change = ((current - previous) / previous) * 100
-  const isPositive = change > 0
-
-  return (
-    <span className={`flex items-center gap-1 text-sm ${
-      isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
-    }`}>
-      {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-      {Math.abs(change).toFixed(0)}%
-    </span>
-  )
+const mockMotivation: MotivationalCard = {
+  quote: "La productividad no es ser capaz de hacer muchas cosas, sino ser capaz de hacer las cosas correctas.",
+  author: "Gary Keller",
+  aiInsight: "Hoy has completado todas tus tareas de alto impacto temprano. Mantén este ritmo para liberar la tarde.",
+  date: '2024-01-28'
 }
+
+const mockAchievements: Achievement[] = [
+  {
+    id: 'ach-001',
+    title: 'Madrugador',
+    description: 'Empezaste una sesión de foco antes de las 7:00 AM',
+    icon: 'sunrise',
+    unlockedAt: '2024-01-25',
+    category: 'habit'
+  },
+  {
+    id: 'ach-002',
+    title: 'Imparable',
+    description: 'Completaste 10 sesiones de foco en un solo día',
+    icon: 'zap',
+    unlockedAt: '2024-01-20',
+    category: 'focus'
+  },
+  {
+    id: 'ach-003',
+    title: 'Semana Perfecta',
+    description: 'Cumpliste tus metas diarias durante 7 días seguidos',
+    icon: 'calendar',
+    unlockedAt: '2024-01-27',
+    category: 'streak'
+  },
+  {
+    id: 'ach-004',
+    title: 'Mente Clara',
+    description: 'Entraste en estado de Flow profundo por más de 2 horas',
+    icon: 'brain',
+    unlockedAt: null,
+    category: 'focus'
+  }
+]
+
+const mockInsights: AIInsight[] = [
+  {
+    id: 'ins-001',
+    type: 'celebration',
+    title: '¡Récord de concentración!',
+    message: 'Ayer tuviste tu sesión de foco más larga hasta la fecha (95 min).',
+    priority: 'high'
+  },
+  {
+    id: 'ins-002',
+    type: 'suggestion',
+    title: 'Patrón detectado',
+    message: 'Eres un 25% más productivo los martes por la mañana.',
+    priority: 'medium'
+  },
+  {
+    id: 'ins-003',
+    type: 'warning',
+    title: 'Fatiga potencial',
+    message: 'Has trabajado 4 horas sin descanso. Considera un break largo.',
+    priority: 'high'
+  }
+]
 
 export function DashboardPage() {
-  return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-          Dashboard
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Tu progreso de productividad
-        </p>
-      </div>
+  const [period, setPeriod] = useState<Period>('today')
+  const [insights, setInsights] = useState(mockInsights)
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MetricCard
-          title="Productividad"
-          value={metrics.productivityScore}
-          suffix="/100"
-          icon={Zap}
-          change={getChangeIndicator(metrics.productivityScore, metrics.previousScore)}
-          color="violet"
-        />
-        <MetricCard
-          title="Tiempo en foco"
-          value={metrics.focusMinutes}
-          suffix=" min"
-          icon={Clock}
-          change={getChangeIndicator(metrics.focusMinutes, metrics.previousFocusMinutes)}
-          color="blue"
-        />
-        <MetricCard
-          title="Tareas completadas"
-          value={metrics.tasksCompleted}
-          icon={CheckCircle2}
-          change={getChangeIndicator(metrics.tasksCompleted, metrics.previousTasksCompleted)}
-          color="emerald"
-        />
-        <MetricCard
-          title="Racha"
-          value={metrics.streakDays}
-          suffix=" días"
-          icon={Flame}
-          color="amber"
-          highlight
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Goals Progress */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            Progreso de metas
-          </h2>
-          <div className="space-y-4">
-            {goalProgress.map(goal => (
-              <div key={goal.id}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {goal.title}
-                  </span>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">
-                    {goal.progress}%
-                  </span>
-                </div>
-                <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-violet-500 rounded-full transition-all"
-                    style={{ width: `${goal.progress}%` }}
-                  />
-                </div>
-                <p className="text-xs text-slate-400 mt-1">
-                  Fecha límite: {goal.dueDate}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Achievements */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            Logros
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {achievements.map(achievement => {
-              const Icon = achievement.icon
-              return (
-                <div
-                  key={achievement.id}
-                  className={`flex flex-col items-center p-3 rounded-lg ${
-                    achievement.unlocked
-                      ? 'bg-violet-50 dark:bg-violet-900/20'
-                      : 'bg-slate-100 dark:bg-slate-800 opacity-50'
-                  }`}
-                >
-                  <Icon className={`w-6 h-6 mb-1 ${
-                    achievement.unlocked
-                      ? 'text-violet-600 dark:text-violet-400'
-                      : 'text-slate-400'
-                  }`} />
-                  <span className={`text-xs text-center ${
-                    achievement.unlocked
-                      ? 'text-slate-700 dark:text-slate-300'
-                      : 'text-slate-500'
-                  }`}>
-                    {achievement.title}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* AI Insights */}
-      <div className="mt-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-          <Award className="w-5 h-5 text-violet-500" />
-          Insights de tu Coach IA
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {aiInsights.map((insight, i) => (
-            <div
-              key={i}
-              className={`p-4 rounded-lg ${
-                insight.type === 'positive'
-                  ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800'
-                  : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800'
-              }`}
-            >
-              <h3 className={`font-medium mb-1 ${
-                insight.type === 'positive'
-                  ? 'text-emerald-800 dark:text-emerald-200'
-                  : 'text-amber-800 dark:text-amber-200'
-              }`}>
-                {insight.title}
-              </h3>
-              <p className={`text-sm ${
-                insight.type === 'positive'
-                  ? 'text-emerald-700 dark:text-emerald-300'
-                  : 'text-amber-700 dark:text-amber-300'
-              }`}>
-                {insight.message}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MetricCard({
-  title,
-  value,
-  suffix = '',
-  icon: Icon,
-  change,
-  color,
-  highlight
-}: {
-  title: string
-  value: number
-  suffix?: string
-  icon: React.ComponentType<{ className?: string }>
-  change?: React.ReactNode
-  color: 'violet' | 'blue' | 'emerald' | 'amber'
-  highlight?: boolean
-}) {
-  const colorStyles = {
-    violet: 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400',
-    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-    emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-    amber: 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+  const handleDismissInsight = (id: string) => {
+    setInsights(prev => prev.filter(i => i.id !== id))
   }
 
   return (
-    <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 ${
-      highlight ? 'ring-2 ring-amber-400 dark:ring-amber-500' : ''
-    }`}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-slate-500 dark:text-slate-400">{title}</span>
-        <div className={`p-2 rounded-lg ${colorStyles[color]}`}>
-          <Icon className="w-4 h-4" />
-        </div>
-      </div>
-      <div className="flex items-end justify-between">
-        <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-          {value}{suffix}
-        </span>
-        {change}
-      </div>
+    <div className="p-4 sm:p-6">
+      <Dashboard
+        currentPeriod={period}
+        metrics={mockMetrics}
+        trendData={mockTrendData}
+        goalProgress={mockGoals}
+        motivationalCard={mockMotivation}
+        achievements={mockAchievements}
+        aiInsights={insights}
+        onPeriodChange={setPeriod}
+        onDismissInsight={handleDismissInsight}
+        onGoalClick={(id) => console.log('Goal clicked', id)}
+        onAchievementClick={(id) => console.log('Achievement clicked', id)}
+        onRefreshMotivation={() => console.log('Refresh motivation')}
+      />
     </div>
   )
 }
