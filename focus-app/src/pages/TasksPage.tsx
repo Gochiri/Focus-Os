@@ -1,132 +1,134 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TaskPriorityView } from '../components/tasks/TaskPriorityView'
+import { taskService } from '../services/taskService'
+import { projectService } from '../services/projectService'
+import { tagService } from '../services/tagService'
 import type { Task, Project, Tag, TaskPriority } from '../types'
 
-const initialTasks: Task[] = [
+const MOCK_TASKS: Task[] = [
   {
     id: 'task-001',
     title: 'Finalizar diseño de onboarding',
-    notes: 'Incluir los 3 pasos principales: bienvenida, configuración de metas, y primera tarea.',
+    notes: 'Incluir los 3 pasos principales.',
     priority: 'high',
     status: 'in_progress',
     deadline: '2024-01-28',
     estimatedMinutes: 180,
     progress: 65,
-    projectId: 'proj-001',
-    goalId: 'goal-001',
-    tagIds: ['tag-005', 'tag-002'],
-    blockedBy: []
-  },
-  {
-    id: 'task-002',
-    title: 'Preparar presentación para inversores',
-    notes: 'Deck de 12 slides máximo. Incluir métricas de tracción.',
-    priority: 'high',
-    status: 'pending',
-    deadline: '2024-01-30',
-    estimatedMinutes: 240,
-    progress: 0,
-    projectId: null,
-    goalId: 'goal-002',
-    tagIds: ['tag-001', 'tag-003'],
-    blockedBy: []
-  },
-  {
-    id: 'task-003',
-    title: 'Implementar autenticación OAuth',
-    notes: 'Soporte para Google y Apple sign-in.',
-    priority: 'high',
-    status: 'blocked',
-    deadline: '2024-02-02',
-    estimatedMinutes: 300,
-    progress: 0,
-    projectId: 'proj-001',
-    goalId: 'goal-001',
-    tagIds: ['tag-005'],
-    blockedBy: ['task-001']
-  },
-  {
-    id: 'task-004',
-    title: 'Revisar contrato con proveedor',
-    notes: 'Verificar cláusulas de SLA y penalizaciones.',
-    priority: 'medium',
-    status: 'pending',
-    deadline: '2024-01-29',
-    estimatedMinutes: 60,
-    progress: 0,
-    projectId: 'proj-003',
-    goalId: null,
-    tagIds: ['tag-004', 'tag-006'],
-    blockedBy: []
-  },
-  {
-    id: 'task-005',
-    title: 'Crear contenido para redes sociales',
-    notes: '10 posts para Instagram, 5 para LinkedIn.',
-    priority: 'medium',
-    status: 'pending',
-    deadline: '2024-02-05',
-    estimatedMinutes: 120,
-    progress: 0,
-    projectId: 'proj-002',
-    goalId: 'goal-003',
-    tagIds: ['tag-002'],
-    blockedBy: []
-  },
-  {
-    id: 'task-009',
-    title: 'Reunión semanal con equipo',
-    notes: 'Agenda: revisión de OKRs, blockers actuales.',
-    priority: 'medium',
-    status: 'completed',
-    deadline: '2024-01-25',
-    estimatedMinutes: 60,
-    progress: 100,
     projectId: null,
     goalId: null,
-    tagIds: ['tag-003'],
+    tagIds: [],
     blockedBy: []
   }
 ]
 
-const initialProjects: Project[] = [
-  { id: 'proj-001', name: 'Lanzamiento App Móvil', color: 'violet' },
-  { id: 'proj-002', name: 'Marketing Q1', color: 'amber' },
-  { id: 'proj-003', name: 'Operaciones', color: 'emerald' }
-]
-
-const initialTags: Tag[] = [
-  { id: 'tag-001', name: 'Urgente', color: 'red' },
-  { id: 'tag-002', name: 'Cliente', color: 'blue' },
-  { id: 'tag-003', name: 'Reunión', color: 'purple' },
-  { id: 'tag-004', name: 'Documentación', color: 'slate' },
-  { id: 'tag-005', name: 'Desarrollo', color: 'green' },
-  { id: 'tag-006', name: 'Revisión', color: 'orange' }
+const MOCK_PROJECTS: Project[] = [
+  { id: 'proj-001', name: 'Lanzamiento App Móvil', color: 'violet' }
 ]
 
 export function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks)
-  const [projects] = useState<Project[]>(initialProjects)
-  const [tags] = useState<Tag[]>(initialTags)
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleCompleteTask = (taskId: string) => {
-    setTasks(prev => prev.map(t =>
-      t.id === taskId
-        ? { ...t, status: t.status === 'completed' ? 'pending' : 'completed', progress: t.status === 'completed' ? 0 : 100 }
-        : t
-    ))
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const [loadedTasks, loadedProjects, loadedTags] = await Promise.all([
+        taskService.getTasks(),
+        projectService.getProjects(),
+        tagService.getTags()
+      ])
+      setTasks(loadedTasks.length > 0 ? loadedTasks : MOCK_TASKS)
+      setProjects(loadedProjects.length > 0 ? loadedProjects : MOCK_PROJECTS)
+      setTags(loadedTags)
+    } catch (err) {
+      console.error('Failed to load data, using mocks:', err)
+      setTasks(MOCK_TASKS)
+      setProjects(MOCK_PROJECTS)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleChangePriority = (taskId: string, priority: TaskPriority) => {
+  const handleCompleteTask = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (!task) return
+
+    const newStatus = task.status === 'completed' ? 'pending' : 'completed'
+    const newProgress = newStatus === 'completed' ? 100 : 0
+
+    // Optimistic update
+    setTasks(prev => prev.map(t =>
+      t.id === taskId
+        ? { ...t, status: newStatus, progress: newProgress }
+        : t
+    ))
+
+    try {
+      await taskService.updateTask(taskId, { status: newStatus, progress: newProgress })
+    } catch (err) {
+      console.error('Failed to update task:', err)
+      loadData() // Revert
+    }
+  }
+
+  const handleChangePriority = async (taskId: string, priority: TaskPriority) => {
     setTasks(prev => prev.map(t =>
       t.id === taskId ? { ...t, priority } : t
     ))
+
+    try {
+      await taskService.updateTask(taskId, { priority })
+    } catch (err) {
+      console.error('Failed to update priority:', err)
+      loadData()
+    }
   }
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
       setTasks(prev => prev.filter(t => t.id !== taskId))
+      try {
+        await taskService.deleteTask(taskId)
+      } catch (err) {
+        console.error('Failed to delete task:', err)
+        loadData()
+      }
     }
+  }
+
+  const handleCreateTask = async () => {
+    const title = prompt('Título de la nueva tarea:')
+    if (!title) return
+
+    try {
+      const newTask = await taskService.createTask({
+        title,
+        notes: '',
+        priority: 'medium',
+        status: 'pending',
+        deadline: new Date().toISOString(),
+        estimatedMinutes: 30,
+        progress: 0,
+        projectId: null,
+        goalId: null,
+        tagIds: [],
+        blockedBy: []
+      })
+      setTasks(prev => [newTask, ...prev])
+    } catch (err) {
+      console.error('Failed to create task:', err)
+    }
+  }
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-500">Cargando tareas...</div>
   }
 
   return (
@@ -139,7 +141,7 @@ export function TasksPage() {
         onCompleteTask={handleCompleteTask}
         onChangePriority={handleChangePriority}
         onDeleteTask={handleDeleteTask}
-        onCreateTask={() => console.log('Create task')}
+        onCreateTask={handleCreateTask}
         onEditTask={(id) => console.log('Edit task', id)}
       />
     </div>

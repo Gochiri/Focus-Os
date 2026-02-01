@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FocusModeDashboard } from '../components/focus/FocusModeDashboard'
 import type { FocusSession, CalendarDay, FocusStats, DurationPreset } from '../types'
-import { Timer, Play, Pause, RotateCcw, Coffee, Zap } from 'lucide-react'
+import { Play, Pause, RotateCcw, Coffee, Zap } from 'lucide-react'
 
 const durationPresets: DurationPreset[] = [
   { id: 'p1', label: 'Eficacia Pomodoro', minutes: 25, breakMinutes: 5, isRecommended: true, aiReason: 'Ideal para tareas que requieren alta concentración sin fatiga.' },
@@ -21,22 +21,54 @@ const mockStats: FocusStats = {
 }
 
 const mockSessions: FocusSession[] = [
-  { id: 's1', date: 'Hoy', startTime: '10:00', durationMinutes: 25, status: 'completed', task: { id: 't1', title: 'Diseño de UI Premium' } },
-  { id: 's2', date: 'Hoy', startTime: '11:30', durationMinutes: 50, status: 'completed', task: { id: 't2', title: 'Refactor types.ts' } },
-  { id: 's3', date: 'Ayer', startTime: '09:00', durationMinutes: 25, status: 'completed' },
-  { id: 's4', date: 'Ayer', startTime: '15:00', durationMinutes: 90, status: 'completed' },
+  {
+    id: 's1',
+    date: new Date().toISOString().split('T')[0],
+    startTime: new Date().toISOString(),
+    endTime: new Date().toISOString(),
+    durationMinutes: 25,
+    breakMinutes: 5,
+    status: 'completed',
+    task: { id: 't1', title: 'Diseño de UI Premium' },
+    pauseCount: 0,
+    notes: null
+  },
+  {
+    id: 's2',
+    date: new Date().toISOString().split('T')[0],
+    startTime: new Date().toISOString(),
+    endTime: new Date().toISOString(),
+    durationMinutes: 50,
+    breakMinutes: 10,
+    status: 'completed',
+    task: { id: 't2', title: 'Refactor types.ts' },
+    pauseCount: 1,
+    notes: 'Buen progreso'
+  },
+  {
+    id: 's3',
+    date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+    startTime: new Date(Date.now() - 86400000).toISOString(),
+    endTime: new Date(Date.now() - 86400000).toISOString(),
+    durationMinutes: 25,
+    breakMinutes: 5,
+    status: 'completed',
+    task: null,
+    pauseCount: 0,
+    notes: null
+  },
 ]
 
 const mockCalendarDays: CalendarDay[] = [
-  { date: '2024-01-20', totalMinutes: 120, sessionCount: 4 },
-  { date: '2024-01-21', totalMinutes: 180, sessionCount: 6 },
-  { date: '2024-01-22', totalMinutes: 45, sessionCount: 2 },
-  { date: '2024-01-23', totalMinutes: 240, sessionCount: 8 },
-  { date: '2024-01-24', totalMinutes: 150, sessionCount: 5 },
-  { date: '2024-01-25', totalMinutes: 300, sessionCount: 10 },
-  { date: '2024-01-26', totalMinutes: 90, sessionCount: 3 },
-  { date: '2024-01-27', totalMinutes: 210, sessionCount: 7 },
-  { date: '2024-01-28', totalMinutes: 240, sessionCount: 8 },
+  { date: '2026-01-20', totalMinutes: 120 },
+  { date: '2026-01-21', totalMinutes: 180 },
+  { date: '2026-01-22', totalMinutes: 45 },
+  { date: '2026-01-23', totalMinutes: 240 },
+  { date: '2026-01-24', totalMinutes: 150 },
+  { date: '2026-01-25', totalMinutes: 300 },
+  { date: '2026-01-26', totalMinutes: 90 },
+  { date: '2026-01-27', totalMinutes: 210 },
+  { date: '2026-01-28', totalMinutes: 240 },
 ]
 
 export function FocusPage() {
@@ -59,7 +91,7 @@ export function FocusPage() {
     return () => clearInterval(interval)
   }, [isActive, isPaused, timeLeft])
 
-  const handleStart = (minutes: number, breakMinutes: number) => {
+  const handleStart = (minutes: number) => {
     setTotalTime(minutes * 60)
     setTimeLeft(minutes * 60)
     setIsActive(true)

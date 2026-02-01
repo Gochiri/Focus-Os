@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GoalKanban } from '../components/goals/GoalKanban'
+import { goalService } from '../services/goalService'
 import type { Goal, GoalStatus } from '../types'
 
-const initialGoals: Goal[] = [
+const MOCK_GOALS: Goal[] = [
   {
     id: 'goal-001',
     title: 'Lanzar App FocusAI v1.0',
@@ -21,110 +22,102 @@ const initialGoals: Goal[] = [
       { id: 't2', title: 'Build Dashboard', completed: true },
       { id: 't3', title: 'Test Prompting', completed: false }
     ],
-    smartFields: {
-      specific: 'Lanzar app FocusAI',
-      measurable: '20 usuarios activos',
-      achievable: 'Si, con foco',
-      relevant: 'Core business',
-      timeBound: '15 Feb'
-    },
-    rpmFields: {
-      result: 'App en producción',
-      purpose: 'Ayudar a otros a ser productivos',
-      massiveActionPlan: ['Plan', 'Code', 'Launch']
-    }
-  },
-  {
-    id: 'goal-002',
-    title: 'Cerrar 3 clientes Beta',
-    description: 'Conseguir los primeros testimonios de pago para validar el valor de la plataforma.',
-    progress: 33,
-    status: 'en_progreso',
-    dueDate: '2024-01-31',
-    tags: ['Growth', 'Q1'],
-    milestones: [
-      { id: 'm4', title: 'Lead magnet', completed: true },
-      { id: 'm5', title: 'Llamadas de ventas', completed: false }
-    ],
-    linkedTasks: [],
-    smartFields: {
-      specific: '3 clientes',
-      measurable: 'Número de contratos',
-      achievable: 'Si',
-      relevant: 'Validación',
-      timeBound: '31 Ene'
-    },
-    rpmFields: {
-      result: '3 clientes beta',
-      purpose: 'Validar PMF',
-      massiveActionPlan: ['List leads', 'Cold outreach', 'Demos']
-    }
-  },
-  {
-    id: 'goal-003',
-    title: 'Establecer rutina de mañana',
-    description: 'Mejorar el enfoque matutino mediante meditación y planificación profunda.',
-    progress: 90,
-    status: 'en_progreso',
-    dueDate: '2024-02-01',
-    tags: ['Personal', 'Salud'],
-    milestones: [],
-    linkedTasks: [],
-    smartFields: {
-      specific: 'Rutina matutina',
-      measurable: 'Días cumplidos',
-      achievable: 'Si',
-      relevant: 'Salud mental',
-      timeBound: 'Diario'
-    },
-    rpmFields: {
-      result: 'Enfoque total',
-      purpose: 'Paz mental',
-      massiveActionPlan: ['Meditación', 'Planning']
-    }
-  },
-  {
-    id: 'goal-004',
-    title: 'Rediseño de landing page',
-    description: 'Nuevos visuales y mejores copys para aumentar la conversión.',
-    progress: 0,
-    status: 'por_iniciar',
-    dueDate: '2024-02-28',
-    tags: ['Growth', 'Producto'],
-    milestones: [],
-    linkedTasks: [],
-    smartFields: {
-      specific: 'Rediseño web',
-      measurable: 'Tasa de conversión',
-      achievable: 'Si',
-      relevant: 'Crecimiento',
-      timeBound: '28 Feb'
-    },
-    rpmFields: {
-      result: 'Web nueva',
-      purpose: 'Más leads',
-      massiveActionPlan: ['Visuals', 'Copywriting']
-    }
+    smart: { specific: '', measurable: '', achievable: '', relevant: '', timeBound: '' },
+    rpm: { result: '', purpose: '', massiveActionPlan: '' },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ]
 
 export function GoalsPage() {
-  const [goals, setGoals] = useState<Goal[]>(initialGoals)
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleStatusChange = (id: string, newStatus: GoalStatus) => {
-    setGoals(prev => prev.map(g =>
-      g.id === id ? { ...g, status: newStatus } : g
-    ))
-  }
+  useEffect(() => {
+    loadGoals()
+  }, [])
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('¿Eliminar esta meta?')) {
-      setGoals(prev => prev.filter(g => g.id !== id))
+  const loadGoals = async () => {
+    try {
+      setLoading(true)
+      const data = await goalService.getGoals()
+      setGoals(data.length > 0 ? data : MOCK_GOALS)
+      setError(null)
+    } catch (err) {
+      console.error('Failed to load goals, using mocks:', err)
+      setGoals(MOCK_GOALS)
+      // We don't set the error state here so the UI still renders the mocks
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleCreate = () => {
-    console.log('Create goal modal would open here')
+  const handleStatusChange = async (id: string, newStatus: GoalStatus) => {
+    try {
+      // Optimistic update
+      setGoals(prev => prev.map(g =>
+        g.id === id ? { ...g, status: newStatus } : g
+      ))
+      
+      await goalService.updateGoal(id, { status: newStatus })
+    } catch (err) {
+      console.error('Failed to update goal status:', err)
+      // Revert on error (could be improved)
+      loadGoals()
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('¿Eliminar esta meta?')) {
+      try {
+        setGoals(prev => prev.filter(g => g.id !== id)) // Optimistic
+        await goalService.deleteGoal(id)
+      } catch (err) {
+        console.error('Failed to delete goal:', err)
+        loadGoals()
+      }
+    }
+  }
+
+  const handleCreate = async () => {
+    const title = prompt('Título de la nueva meta:')
+    if (!title) return
+
+    try {
+      const newGoal = await goalService.createGoal({
+        title,
+        description: 'Nueva meta creada desde la UI',
+        status: 'por_iniciar',
+        progress: 0,
+        dueDate: new Date().toISOString(), // Default to today/now for simplicity
+        tags: ['Nueva'],
+        smart: { specific: '', measurable: '', achievable: '', relevant: '', timeBound: '' },
+        rpm: { result: '', purpose: '', massiveActionPlan: '' }
+      })
+      setGoals(prev => [newGoal, ...prev])
+    } catch (err) {
+      console.error('Failed to create goal:', err)
+      alert('Error al crear la meta')
+    }
+  }
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-500">Cargando metas...</div>
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          onClick={loadGoals}
+          className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 transition-colors"
+        >
+          Reintentar
+        </button>
+      </div>
+    )
   }
 
   return (

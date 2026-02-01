@@ -25,7 +25,6 @@ export interface FocusModeDashboardProps {
 }
 
 export function FocusModeDashboard({
-    activeSession,
     focusStats,
     durationPresets,
     focusSessions,
@@ -36,7 +35,7 @@ export function FocusModeDashboard({
 }: FocusModeDashboardProps) {
     const [selectedMinutes, setSelectedMinutes] = useState(durationPresets.find(p => p.isRecommended)?.minutes || 25)
     const [selectedBreakMinutes, setSelectedBreakMinutes] = useState(durationPresets.find(p => p.isRecommended)?.breakMinutes || 5)
-    const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>()
+    const [selectedTaskId] = useState<string | undefined>()
 
     const handleSelectPreset = (preset: DurationPreset) => {
         setSelectedMinutes(preset.minutes)

@@ -27,6 +27,8 @@ const initialSuggestions: ProactiveSuggestion[] = [
     type: 'procrastination_alert',
     title: 'Posible bloqueo detectado',
     message: 'Has pospuesto "Rediseño de landing page" por 3 días seguidos. ¿Quieres dividirla en tareas más pequeñas?',
+    priority: 'high',
+    createdAt: new Date().toISOString(),
     actions: [
       { id: 'sact-001', label: 'Dividir tarea', action: 'view_task' },
       { id: 'sact-002', label: 'Ignorar', action: 'view_task' }
@@ -37,6 +39,8 @@ const initialSuggestions: ProactiveSuggestion[] = [
     type: 'check_in',
     title: 'Revisión de Flow',
     message: 'Llevas 45 minutos de trabajo profundo. ¿Cómo te sientes para otros 45?',
+    priority: 'medium',
+    createdAt: new Date().toISOString(),
     actions: [
       { id: 'sact-003', label: 'Seguir así', action: 'start_focus' },
       { id: 'sact-004', label: 'Tomar break', action: 'start_break' }
@@ -50,7 +54,9 @@ export function CoachPage() {
   const [coachState, setCoachState] = useState<CoachState>({
     isTyping: false,
     currentStreak: 15,
-    todayFocusMinutes: 240
+    todayFocusMinutes: 240,
+    unreadSuggestions: 2,
+    lastCheckIn: new Date().toISOString()
   })
 
   const handleSendMessage = (content: string) => {

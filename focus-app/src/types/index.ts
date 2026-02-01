@@ -3,7 +3,7 @@
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Shared Entities
+// Task Entity
 // -----------------------------------------------------------------------------
 
 export type TaskPriority = 'high' | 'medium' | 'low'
@@ -20,10 +20,6 @@ export interface Tag {
   name: string
   color: string
 }
-
-// -----------------------------------------------------------------------------
-// Task Entity
-// -----------------------------------------------------------------------------
 
 export interface Task {
   id: string
@@ -120,6 +116,30 @@ export interface FocusSession {
   task: TaskReference | null
   pauseCount: number
   notes: string | null
+}
+
+export interface CalendarDay {
+  date: string
+  totalMinutes: number
+}
+
+export interface DurationPreset {
+  id: string
+  label: string
+  minutes: number
+  breakMinutes: number
+  isRecommended?: boolean
+  aiReason?: string
+}
+
+export interface FocusStats {
+  todayMinutes: number
+  currentStreak: number
+  todaySessions: number
+  averageSessionLength: number
+  weeklyMinutes: number
+  weeklyGoal: number
+  bestStreak: number
 }
 
 export interface ActiveSession {

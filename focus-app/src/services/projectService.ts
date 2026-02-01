@@ -1,0 +1,52 @@
+import { supabase } from '../lib/supabase'
+import type { Project } from '../types'
+
+export const projectService = {
+  async getProjects(goalId?: string) {
+    let query = supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (goalId) {
+      query = query.eq('goal_id', goalId)
+    }
+
+    const { data, error } = await query
+    
+    if (error) throw error
+    return data as Project[]
+  },
+
+  async createProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) {
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([project])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Project
+  },
+
+  async updateProject(id: string, updates: Partial<Project>) {
+    const { data, error } = await supabase
+      .from('projects')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Project
+  },
+
+  async deleteProject(id: string) {
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  }
+}
