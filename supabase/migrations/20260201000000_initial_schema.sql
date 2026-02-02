@@ -24,6 +24,7 @@ create table public.projects (
     goal_id uuid references public.goals(id) on delete set null,
     name text not null,
     color text default '#3b82f6',
+    progress integer not null default 0,
     created_at timestamp with time zone default now(),
     updated_at timestamp with time zone default now()
 );

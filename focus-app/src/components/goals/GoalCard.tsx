@@ -34,6 +34,7 @@ export function GoalCard({
 
     const completedMilestones = goal.milestones.filter(m => m.completed).length
     const totalMilestones = goal.milestones.length
+    const totalProjects = goal.projects?.length || 0
     const completedTasks = goal.linkedTasks.filter(t => t.completed).length
     const totalTasks = goal.linkedTasks.length
 
@@ -226,6 +227,12 @@ export function GoalCard({
                         <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tight text-slate-500 dark:text-slate-400">
                             <Flag className="w-3.5 h-3.5 text-violet-500/70" />
                             <span>{completedMilestones}/{totalMilestones} hitos</span>
+                        </div>
+                    )}
+                    {totalProjects > 0 && (
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-tight text-slate-500 dark:text-slate-400">
+                            <Folder className="w-3.5 h-3.5 text-violet-500/70" />
+                            <span>{totalProjects} proyectos</span>
                         </div>
                     )}
                     {totalTasks > 0 && (

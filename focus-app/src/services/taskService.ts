@@ -1,8 +1,10 @@
-import { supabase } from '../lib/supabase'
+import { supabase, isOffline } from '../lib/supabase'
 import type { Task } from '../types'
 
 export const taskService = {
   async getTasks(projectId?: string, goalId?: string) {
+    if (isOffline) return []
+
     let query = supabase
       .from('tasks')
       .select('*, task_tags(tag_id)')
@@ -36,6 +38,17 @@ export const taskService = {
   async createTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'tagIds'> & { tagIds?: string[] }) {
     const { tagIds, ...taskData } = task
     
+    if (isOffline) {
+      console.log('[Offline] Creating task:', task)
+      return {
+        ...taskData,
+        tagIds: tagIds || [],
+        id: `offline-task-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } as Task
+    }
+
     const dbTask = {
       title: taskData.title,
       notes: taskData.notes,
@@ -91,6 +104,16 @@ export const taskService = {
   async updateTask(id: string, updates: Partial<Task> & { tagIds?: string[] }) {
     const { tagIds, ...taskData } = updates
     
+    if (isOffline) {
+      console.log('[Offline] Updating task:', id, updates)
+      return {
+        id,
+        ...taskData,
+        tagIds: tagIds,
+        updatedAt: new Date().toISOString()
+      } as Task
+    }
+
     const dbUpdates: any = {}
     if (taskData.title !== undefined) dbUpdates.title = taskData.title
     if (taskData.notes !== undefined) dbUpdates.notes = taskData.notes
@@ -147,11 +170,31 @@ export const taskService = {
   },
 
   async deleteTask(id: string) {
+    if (isOffline) {
+      console.log('[Offline] Deleting task:', id)
+      return
+    }
+
     const { error } = await supabase
       .from('tasks')
       .delete()
       .eq('id', id)
     
     if (error) throw error
+  },
+
+  subscribeToTasks(onUpdate: () => void) {
+    if (isOffline) return () => {}
+
+    const channel = supabase
+      .channel('public:tasks')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+        onUpdate()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }
 }

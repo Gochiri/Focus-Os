@@ -1,56 +1,49 @@
 import { useState, useEffect } from 'react'
 import { TaskPriorityView } from '../components/tasks/TaskPriorityView'
+import { TaskForm } from '../components/tasks/TaskForm'
 import { taskService } from '../services/taskService'
 import { projectService } from '../services/projectService'
+import { goalService } from '../services/goalService'
 import { tagService } from '../services/tagService'
-import type { Task, Project, Tag, TaskPriority } from '../types'
-
-const MOCK_TASKS: Task[] = [
-  {
-    id: 'task-001',
-    title: 'Finalizar diseño de onboarding',
-    notes: 'Incluir los 3 pasos principales.',
-    priority: 'high',
-    status: 'in_progress',
-    deadline: '2024-01-28',
-    estimatedMinutes: 180,
-    progress: 65,
-    projectId: null,
-    goalId: null,
-    tagIds: [],
-    blockedBy: []
-  }
-]
-
-const MOCK_PROJECTS: Project[] = [
-  { id: 'proj-001', name: 'Lanzamiento App Móvil', color: 'violet' }
-]
+import type { Task, Project, Goal, Tag, TaskPriority } from '../types'
 
 export function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [projects, setProjects] = useState<Project[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [loading, setLoading] = useState(true)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | undefined>()
 
   useEffect(() => {
     loadData()
+
+    // Subscribe to real-time updates
+    const unsubscribe = taskService.subscribeToTasks(() => {
+      loadData()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   const loadData = async () => {
     try {
       setLoading(true)
-      const [loadedTasks, loadedProjects, loadedTags] = await Promise.all([
+      const [loadedTasks, loadedProjects, loadedGoals, loadedTags] = await Promise.all([
         taskService.getTasks(),
         projectService.getProjects(),
+        goalService.getGoals(),
         tagService.getTags()
       ])
-      setTasks(loadedTasks.length > 0 ? loadedTasks : MOCK_TASKS)
-      setProjects(loadedProjects.length > 0 ? loadedProjects : MOCK_PROJECTS)
+      setTasks(loadedTasks)
+      setProjects(loadedProjects)
+      setGoals(loadedGoals)
       setTags(loadedTags)
     } catch (err) {
-      console.error('Failed to load data, using mocks:', err)
-      setTasks(MOCK_TASKS)
-      setProjects(MOCK_PROJECTS)
+      console.error('Failed to load data:', err)
     } finally {
       setLoading(false)
     }
@@ -63,27 +56,24 @@ export function TasksPage() {
     const newStatus = task.status === 'completed' ? 'pending' : 'completed'
     const newProgress = newStatus === 'completed' ? 100 : 0
 
-    // Optimistic update
-    setTasks(prev => prev.map(t =>
-      t.id === taskId
-        ? { ...t, status: newStatus, progress: newProgress }
-        : t
-    ))
-
     try {
+      setTasks(prev => prev.map(t =>
+        t.id === taskId
+          ? { ...t, status: newStatus, progress: newProgress }
+          : t
+      ))
       await taskService.updateTask(taskId, { status: newStatus, progress: newProgress })
     } catch (err) {
       console.error('Failed to update task:', err)
-      loadData() // Revert
+      loadData()
     }
   }
 
   const handleChangePriority = async (taskId: string, priority: TaskPriority) => {
-    setTasks(prev => prev.map(t =>
-      t.id === taskId ? { ...t, priority } : t
-    ))
-
     try {
+      setTasks(prev => prev.map(t =>
+        t.id === taskId ? { ...t, priority } : t
+      ))
       await taskService.updateTask(taskId, { priority })
     } catch (err) {
       console.error('Failed to update priority:', err)
@@ -93,8 +83,8 @@ export function TasksPage() {
 
   const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
-      setTasks(prev => prev.filter(t => t.id !== taskId))
       try {
+        setTasks(prev => prev.filter(t => t.id !== taskId))
         await taskService.deleteTask(taskId)
       } catch (err) {
         console.error('Failed to delete task:', err)
@@ -103,31 +93,29 @@ export function TasksPage() {
     }
   }
 
-  const handleCreateTask = async () => {
-    const title = prompt('Título de la nueva tarea:')
-    if (!title) return
-
+  const handleSave = async (taskData: any) => {
     try {
-      const newTask = await taskService.createTask({
-        title,
-        notes: '',
-        priority: 'medium',
-        status: 'pending',
-        deadline: new Date().toISOString(),
-        estimatedMinutes: 30,
-        progress: 0,
-        projectId: null,
-        goalId: null,
-        tagIds: [],
-        blockedBy: []
-      })
-      setTasks(prev => [newTask, ...prev])
+      if (editingTask) {
+        await taskService.updateTask(editingTask.id, taskData)
+      } else {
+        await taskService.createTask(taskData)
+      }
+      loadData()
     } catch (err) {
-      console.error('Failed to create task:', err)
+      console.error('Failed to save task:', err)
+      alert('Error al guardar la tarea')
     }
   }
 
-  if (loading) {
+  const handleEditTask = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (task) {
+      setEditingTask(task)
+      setIsFormOpen(true)
+    }
+  }
+
+  if (loading && tasks.length === 0) {
     return <div className="p-8 text-center text-slate-500">Cargando tareas...</div>
   }
 
@@ -141,9 +129,26 @@ export function TasksPage() {
         onCompleteTask={handleCompleteTask}
         onChangePriority={handleChangePriority}
         onDeleteTask={handleDeleteTask}
-        onCreateTask={handleCreateTask}
-        onEditTask={(id) => console.log('Edit task', id)}
+        onCreateTask={() => {
+          setEditingTask(undefined)
+          setIsFormOpen(true)
+        }}
+        onEditTask={handleEditTask}
       />
+
+      {isFormOpen && (
+        <TaskForm
+          task={editingTask}
+          projects={projects}
+          goals={goals}
+          tags={tags}
+          onClose={() => {
+            setIsFormOpen(false)
+            setEditingTask(undefined)
+          }}
+          onSave={handleSave}
+        />
+      )}
     </div>
   )
 }

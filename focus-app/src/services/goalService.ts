@@ -1,11 +1,13 @@
-import { supabase } from '../lib/supabase'
+import { supabase, isOffline } from '../lib/supabase'
 import type { Goal } from '../types'
 
 export const goalService = {
   async getGoals() {
+    if (isOffline) return [] // Return empty so page uses its own mock fallback or we could return mock here
+
     const { data, error } = await supabase
       .from('goals')
-      .select('*, milestones(*), tasks(id, title, status)')
+      .select('*, milestones(*), tasks(id, title, status), projects(*)')
       .order('created_at', { ascending: false })
     
     if (error) throw error
@@ -22,6 +24,13 @@ export const goalService = {
       smart: g.smart,
       rpm: g.rpm,
       milestones: g.milestones || [],
+      projects: g.projects?.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        color: p.color,
+        goalId: p.goal_id,
+        progress: p.progress
+      })) || [],
       createdAt: g.created_at,
       updatedAt: g.updated_at,
       linkedTasks: g.tasks?.map((t: any) => ({
@@ -35,7 +44,7 @@ export const goalService = {
   async getGoalById(id: string) {
     const { data, error } = await supabase
       .from('goals')
-      .select('*, milestones(*), tasks(id, title, status)')
+      .select('*, milestones(*), tasks(id, title, status), projects(*)')
       .eq('id', id)
       .single()
     
@@ -53,6 +62,13 @@ export const goalService = {
       smart: g.smart,
       rpm: g.rpm,
       milestones: g.milestones || [],
+      projects: g.projects?.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        color: p.color,
+        goalId: p.goal_id,
+        progress: p.progress
+      })) || [],
       createdAt: g.created_at,
       updatedAt: g.updated_at,
       linkedTasks: g.tasks?.map((t: any) => ({
@@ -64,6 +80,18 @@ export const goalService = {
   },
 
   async createGoal(goal: Omit<Goal, 'id' | 'createdAt' | 'updatedAt' | 'milestones' | 'linkedTasks'>) {
+    if (isOffline) {
+      console.log('[Offline] Creating goal:', goal)
+      return {
+        ...goal,
+        id: `offline-goal-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        milestones: [],
+        linkedTasks: []
+      } as Goal
+    }
+
     // Map camelCase to snake_case for DB
     const dbGoal = {
       title: goal.title,
@@ -107,6 +135,15 @@ export const goalService = {
     // Exclude relational fields that can't be updated directly on the goal table
     const { milestones, linkedTasks, ...goalFields } = updates
     
+    if (isOffline) {
+      console.log('[Offline] Updating goal:', id, updates)
+      return {
+        id,
+        ...updates,
+        updatedAt: new Date().toISOString()
+      } as Goal
+    }
+
     // Map updates to snake_case
     const dbUpdates: any = {}
     if (goalFields.title !== undefined) dbUpdates.title = goalFields.title
@@ -149,11 +186,31 @@ export const goalService = {
   },
 
   async deleteGoal(id: string) {
+    if (isOffline) {
+      console.log('[Offline] Deleting goal:', id)
+      return
+    }
+
     const { error } = await supabase
       .from('goals')
       .delete()
       .eq('id', id)
     
     if (error) throw error
+  },
+
+  subscribeToGoals(onUpdate: () => void) {
+    if (isOffline) return () => {}
+
+    const channel = supabase
+      .channel('public:goals')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'goals' }, () => {
+        onUpdate()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }
 }

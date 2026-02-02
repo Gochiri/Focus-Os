@@ -1,53 +1,43 @@
 import { useState, useEffect } from 'react'
 import { GoalKanban } from '../components/goals/GoalKanban'
+import { GoalForm } from '../components/goals/GoalForm'
 import { goalService } from '../services/goalService'
 import type { Goal, GoalStatus } from '../types'
 
 const MOCK_GOALS: Goal[] = [
-  {
-    id: 'goal-001',
-    title: 'Lanzar App FocusAI v1.0',
-    description: 'Completar MVP funcional con dashboard, tareas y coach de IA para la primera semana de febrero.',
-    progress: 75,
-    status: 'en_progreso',
-    dueDate: '2024-02-15',
-    tags: ['Producto', 'Q1', 'Tech'],
-    milestones: [
-      { id: 'm1', title: 'Diseño de UI', completed: true },
-      { id: 'm2', title: 'Modelo de datos', completed: true },
-      { id: 'm3', title: 'Integración IA', completed: false }
-    ],
-    linkedTasks: [
-      { id: 't1', title: 'Fix types', completed: true },
-      { id: 't2', title: 'Build Dashboard', completed: true },
-      { id: 't3', title: 'Test Prompting', completed: false }
-    ],
-    smart: { specific: '', measurable: '', achievable: '', relevant: '', timeBound: '' },
-    rpm: { result: '', purpose: '', massiveActionPlan: '' },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
+  // ... existing mock can be kept or removed if we expect real data
 ]
 
 export function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingGoal, setEditingGoal] = useState<Goal | undefined>()
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
 
   useEffect(() => {
     loadGoals()
+
+    // Subscribe to real-time updates
+    const unsubscribe = goalService.subscribeToGoals(() => {
+      loadGoals()
+    })
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   const loadGoals = async () => {
     try {
       setLoading(true)
       const data = await goalService.getGoals()
-      setGoals(data.length > 0 ? data : MOCK_GOALS)
+      setGoals(data)
       setError(null)
     } catch (err) {
-      console.error('Failed to load goals, using mocks:', err)
-      setGoals(MOCK_GOALS)
-      // We don't set the error state here so the UI still renders the mocks
+      console.error('Failed to load goals:', err)
+      setError('Error al cargar metas')
     } finally {
       setLoading(false)
     }
@@ -63,7 +53,6 @@ export function GoalsPage() {
       await goalService.updateGoal(id, { status: newStatus })
     } catch (err) {
       console.error('Failed to update goal status:', err)
-      // Revert on error (could be improved)
       loadGoals()
     }
   }
@@ -71,7 +60,7 @@ export function GoalsPage() {
   const handleDelete = async (id: string) => {
     if (window.confirm('¿Eliminar esta meta?')) {
       try {
-        setGoals(prev => prev.filter(g => g.id !== id)) // Optimistic
+        setGoals(prev => prev.filter(g => g.id !== id))
         await goalService.deleteGoal(id)
       } catch (err) {
         console.error('Failed to delete goal:', err)
@@ -80,56 +69,81 @@ export function GoalsPage() {
     }
   }
 
-  const handleCreate = async () => {
-    const title = prompt('Título de la nueva meta:')
-    if (!title) return
+  const handleSave = async (goalData: any) => {
+    if (editingGoal) {
+      await goalService.updateGoal(editingGoal.id, goalData)
+    } else {
+      await goalService.createGoal(goalData)
+    }
+    loadGoals()
+  }
 
-    try {
-      const newGoal = await goalService.createGoal({
-        title,
-        description: 'Nueva meta creada desde la UI',
-        status: 'por_iniciar',
-        progress: 0,
-        dueDate: new Date().toISOString(), // Default to today/now for simplicity
-        tags: ['Nueva'],
-        smart: { specific: '', measurable: '', achievable: '', relevant: '', timeBound: '' },
-        rpm: { result: '', purpose: '', massiveActionPlan: '' }
-      })
-      setGoals(prev => [newGoal, ...prev])
-    } catch (err) {
-      console.error('Failed to create goal:', err)
-      alert('Error al crear la meta')
+  const handleEdit = (id: string) => {
+    const goal = goals.find(g => g.id === id)
+    if (goal) {
+      setEditingGoal(goal)
+      setIsFormOpen(true)
     }
   }
 
-  if (loading) {
-    return <div className="p-8 text-center text-slate-500">Cargando metas...</div>
-  }
+  const filteredGoals = goals.filter(g => {
+    if (filter === 'all') return true
+    if (filter === 'active') return g.status !== 'completada'
+    if (filter === 'completed') return g.status === 'completada'
+    return true
+  })
 
-  if (error) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-500 mb-4">{error}</p>
-        <button 
-          onClick={loadGoals}
-          className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 transition-colors"
-        >
-          Reintentar
-        </button>
-      </div>
-    )
+  if (loading && goals.length === 0) {
+    return <div className="p-8 text-center text-slate-500">Cargando metas...</div>
   }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Mis Metas</h1>
+          <p className="text-slate-500">Visualiza y gestiona tus objetivos de alto nivel.</p>
+        </div>
+        
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
+          {(['all', 'active', 'completed'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                filter === f 
+                  ? 'bg-white text-slate-900 shadow-sm' 
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {f === 'all' ? 'Todas' : f === 'active' ? 'Activas' : 'Completadas'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <GoalKanban
-        goals={goals}
-        onCreate={handleCreate}
+        goals={filteredGoals}
+        onCreate={() => {
+          setEditingGoal(undefined)
+          setIsFormOpen(true)
+        }}
         onStatusChange={handleStatusChange}
         onDelete={handleDelete}
-        onView={(id) => console.log('View', id)}
-        onEdit={(id) => console.log('Edit', id)}
+        onView={handleEdit}
+        onEdit={handleEdit}
       />
+
+      {isFormOpen && (
+        <GoalForm
+          goal={editingGoal}
+          onClose={() => {
+            setIsFormOpen(false)
+            setEditingGoal(undefined)
+          }}
+          onSave={handleSave}
+        />
+      )}
     </div>
   )
 }

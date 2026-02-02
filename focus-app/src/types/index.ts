@@ -13,6 +13,10 @@ export interface Project {
   id: string
   name: string
   color: string
+  goalId: string | null
+  progress: number
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Tag {
@@ -90,6 +94,7 @@ export interface Goal {
   rpm: RpmFields
   milestones: Milestone[]
   linkedTasks: LinkedTask[]
+  projects?: Project[]
   createdAt?: string
   updatedAt?: string
 }
