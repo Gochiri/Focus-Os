@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { X, Calendar, Clock, Flag, Link2, Tag as TagIcon, Layout } from 'lucide-react'
+import { useState } from 'react'
+import { X, Calendar, Clock, Tag as TagIcon, Layout } from 'lucide-react'
 import type { Task, Project, Goal, Tag, TaskStatus, TaskPriority } from '../../types'
 
 interface TaskFormProps {

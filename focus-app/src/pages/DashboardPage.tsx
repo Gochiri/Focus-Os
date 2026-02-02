@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Dashboard } from '../components/dashboard/Dashboard'
 import { dashboardService } from '../services/dashboardService'
-import type { Period, PeriodMetrics, TrendDataPoint, GoalProgress, MotivationalCard, Achievement, AIInsight } from '../types'
+import type { Period, PeriodMetrics, GoalProgress, AIInsight } from '../types'
 
 export function DashboardPage() {
   const [period, setPeriod] = useState<Period>('today')

@@ -23,7 +23,7 @@ export function FocusPage() {
     weeklyGoal: 1500,
     averageSessionLength: 0
   })
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [activeTaskId, setActiveTaskId] = useState<string | undefined>()
   const [availableTasks, setAvailableTasks] = useState<Task[]>([])
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
@@ -42,7 +42,7 @@ export function FocusPage() {
   }, [])
 
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: any
     if (isTimerRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft(prev => prev - 1)

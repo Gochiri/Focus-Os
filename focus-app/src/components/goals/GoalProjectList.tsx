@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, X, Folder, Pencil } from 'lucide-react'
+import { Plus, X, Pencil } from 'lucide-react'
 import { projectService } from '../../services/projectService'
 import type { Project } from '../../types'
 

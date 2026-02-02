@@ -56,7 +56,7 @@ export interface WorkBlock {
 
 export type GoalStatus = 'por_iniciar' | 'en_progreso' | 'pausada' | 'completada'
 
-export interface SmartFields {
+export interface SMARTDetails {
   specific: string
   measurable: string
   achievable: string
@@ -64,7 +64,7 @@ export interface SmartFields {
   timeBound: string
 }
 
-export interface RpmFields {
+export interface RPMDetails {
   result: string
   purpose: string
   massiveActionPlan: string
@@ -74,6 +74,7 @@ export interface Milestone {
   id: string
   title: string
   completed: boolean
+  goalId: string
 }
 
 export interface LinkedTask {
@@ -90,8 +91,8 @@ export interface Goal {
   progress: number  // 0-100, calculated from milestones/tasks
   dueDate: string
   tags: string[]
-  smart: SmartFields
-  rpm: RpmFields
+  smart: SMARTDetails
+  rpm: RPMDetails
   milestones: Milestone[]
   linkedTasks: LinkedTask[]
   projects?: Project[]

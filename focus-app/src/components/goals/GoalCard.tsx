@@ -12,6 +12,7 @@ import {
     Flag,
     ChevronRight,
     ListTodo,
+    Folder,
 } from 'lucide-react'
 import type { Goal, GoalStatus } from '../../types'
 

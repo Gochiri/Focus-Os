@@ -4,14 +4,10 @@ import { GoalForm } from '../components/goals/GoalForm'
 import { goalService } from '../services/goalService'
 import type { Goal, GoalStatus } from '../types'
 
-const MOCK_GOALS: Goal[] = [
-  // ... existing mock can be kept or removed if we expect real data
-]
-
 export function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [, setError] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingGoal, setEditingGoal] = useState<Goal | undefined>()
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
